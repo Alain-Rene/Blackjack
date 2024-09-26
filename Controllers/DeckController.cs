@@ -81,7 +81,8 @@ namespace Blackjack.Controllers
                 status.PlayerCards.Add(cardsResult.cards[0]);
                 status.PlayerScore += GetCardScore(cardsResult.cards[0]);
 
-                //use the lowering aces method
+                //use the lowering aces method logic error where the program
+                // Keeps lowering the score everytime you hit
                 status.PlayerScore = LowerAceValues(status.PlayerCards, status.PlayerScore);
 
                 if(status.PlayerScore > 21)
