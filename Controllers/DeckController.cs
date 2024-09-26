@@ -49,6 +49,10 @@ namespace Blackjack.Controllers
             status.PlayerScore = GetCardScore(resultCards.cards[1]) + GetCardScore(resultCards.cards[2]);
             status.GameOver = false;
             status.Outcome = "";
+
+            // Incase player gets 2 aces from start, lower values
+            status.PlayerScore = LowerAceValues(status.PlayerCards, status.PlayerScore);
+
              if(status.PlayerScore > 21)
                 {
                     status.GameOver = true;
@@ -76,6 +80,10 @@ namespace Blackjack.Controllers
                 DeckModel cardsResult = await _service.DrawCards(1, status.DeckId);
                 status.PlayerCards.Add(cardsResult.cards[0]);
                 status.PlayerScore += GetCardScore(cardsResult.cards[0]);
+
+                //use the lowering aces method
+                status.PlayerScore = LowerAceValues(status.PlayerCards, status.PlayerScore);
+
                 if(status.PlayerScore > 21)
                 {
                     status.GameOver = true;
@@ -93,6 +101,7 @@ namespace Blackjack.Controllers
                     DeckModel cardsResult = await _service.DrawCards(1, status.DeckId);
                     status.DealerCards.Add(cardsResult.cards[0]);
                     status.DealerScore += GetCardScore(cardsResult.cards[0]);
+                    status.DealerScore = LowerAceValues(status.DealerCards, status.DealerScore);
                 }
 
                 // Once dealer's turn is over, determine outcome of the game
@@ -146,6 +155,22 @@ namespace Blackjack.Controllers
             {
                 return int.Parse(c.value);
             }
+        }
+        // Lower Ace values if the current score is greater than 21
+        private int LowerAceValues(List<Card> cards, int currentScore)
+        {
+            // Gets number of aces in current hand
+            int aceCount = cards.Count(c => c.value == "ACE");
+
+            // Keeps lowering the score while the user has aces and a value
+            // Greater than 21
+            while (currentScore > 21 && aceCount > 0)
+            {
+                currentScore -= 10;
+                aceCount--;
+            }
+
+            return currentScore;
         }
     }
 }
